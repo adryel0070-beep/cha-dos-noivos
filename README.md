@@ -1,2 +1,2 @@
 # cha-dos-noivos
-Um presente para ajudarmos a montar nossa casa
+Um presente para nos ajudar a montar nossa casa
