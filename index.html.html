@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Lista de Presentes</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: transparent;
+    padding-top: 100px; /* espaço para o cabeçalho fixo */
+    margin: 0;
+  }
+
+  /* Cabeçalho fixo */
+  header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    text-align: center;
+    padding: 20px 10px;
+    z-index: 100;
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 1.8em;
+    color: #333;
+  }
+
+  header p {
+    margin: 6px 0 0;
+    font-size: 1em;
+    color: #555;
+    font-style: italic;
+  }
+
+  /* Lista */
+  .presente {
+    background: rgba(255, 255, 255, 0.8); /* 20% de transparência no fundo branco */
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin: 15px auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    align-items: center;
+    max-width: 700px;
+    gap: 10px;
+    transition: opacity 0.3s, transform 0.2s;
+  }
+
+  .presente:hover {
+    transform: scale(1.02);
+  }
+
+  .reservado {
+    opacity: 0.4;
+    text-decoration: line-through;
+  }
+
+  button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  button:hover:not(:disabled) {
+    background: #45a049;
+  }
+
+  button:disabled {
+    background: #999;
+    cursor: not-allowed;
+  }
+
+  /* Ajuste para mobile */
+  @media (max-width: 600px) {
+    .presente {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    button {
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Lista de Presentes ❤️🎁</h1>
+    <p>Escolha um presente e nos ajude a montar nosso novo lar ❤️</p>
+  </header>
+
+  <div id="lista"></div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbxa4cGO4c_B8MdsbPjktWRVicdFNpNKvu-_wuIY1TFnp7Zz8xjUcNNEGu_6UtnO5SGl/exec";
+
+    async function carregarPresentes() {
+      const res = await fetch(API_URL);
+      const presentes = await res.json();
+
+      const lista = document.getElementById("lista");
+      lista.innerHTML = "";
+
+      presentes.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "presente" + (p.status === "reservado" ? " reservado" : "");
+
+        div.innerHTML = `
+          <span>${p.presente}</span>
+          <!-- <a href="${p.link}" target="_blank">🔗 Ver</a> -->
+          <button ${p.status === "reservado" ? "disabled" : ""} onclick="reservar('${p.presente}')">Presentear</button>
+        `;
+
+        lista.appendChild(div);
+      });
+    }
+
+    async function reservar(nomePresente) {
+      const convidado = prompt("Digite seu nome para confirmar o presente:");
+      if (!convidado) return;
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ presente: nomePresente, convidado }),
+        headers: { "Content-Type": "application/json" }
+      });
+
+      const texto = await res.text();
+      if (texto === "ok") alert("Presente reservado com sucesso!");
+      else alert("Ops, alguém já escolheu esse presente.");
+
+      carregarPresentes();
+    }
+
+    carregarPresentes();
+  </script>
+</body>
+</html>
